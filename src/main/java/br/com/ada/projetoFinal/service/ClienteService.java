@@ -27,7 +27,7 @@ public class ClienteService {
     }
 
     public Optional<Cliente> buscarClientePeloDocumento(String cpfCnpj) {
-        return this.clienteRepository.findByClienteContaining(cpfCnpj);
+        return this.clienteRepository.findByCpfCnpjContaining(cpfCnpj);
     }
 
     public void removerClientePorId(Long id) {

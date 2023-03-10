@@ -20,13 +20,13 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping("/") //POST
-    public ResponseEntity<String> createCliente(@Valid @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<String> createCliente(@Valid @RequestBody ClienteDTO cliente) {
         try {
             Cliente clienteDB = Cliente.builder()
-                    .cpfCnpj(clienteDTO.getCpfCnpj())
-                    .nome(clienteDTO.getNome())
-                    .dataNascimento(clienteDTO.getDataNascimento())
-                    .endereco(clienteDTO.getEndereco())
+                    .cpfCnpj(cliente.getCpfCnpj())
+                    .nome(cliente.getNome())
+                    .dataNascimento(cliente.getDataNascimento())
+                    .endereco(cliente.getEndereco())
                     .build();
             this.clienteService.createCliente(clienteDB);
             return ResponseEntity
@@ -52,20 +52,16 @@ public class ClienteController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<String> atualizarCliente(@RequestBody ClienteDTO clienteDTO) {
-        //1 - buscar cliente
-        //2 - atualizar
-
+    public ResponseEntity<String> atualizarCliente(@RequestBody ClienteDTO cliente) {
         try {
-            Optional<Cliente> optionalCliente = this.clienteService.buscarClientePeloDocumento(clienteDTO.getCpfCnpj());
-
+            Optional<Cliente> optionalCliente = this.clienteService.buscarClientePeloDocumento(cliente.getCpfCnpj());
             if (optionalCliente.isPresent()) {
                 Cliente clientePorDocumentoDB = optionalCliente.get();
                 Cliente clienteAtualizar = Cliente.builder()
-                        .cpfCnpj(clienteDTO.getCpfCnpj())
-                        .nome(clienteDTO.getNome())
-                        .dataNascimento(clienteDTO.getDataNascimento())
-                        .endereco(clienteDTO.getEndereco())
+                        .cpfCnpj(cliente.getCpfCnpj())
+                        .nome(cliente.getNome())
+                        .dataNascimento(cliente.getDataNascimento())
+                        .endereco(cliente.getEndereco())
                         .build();
                 this.clienteService.createCliente(clienteAtualizar);
 
