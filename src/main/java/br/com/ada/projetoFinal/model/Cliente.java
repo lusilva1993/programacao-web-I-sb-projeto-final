@@ -22,7 +22,7 @@ public class Cliente {
     private String cpfCnpj;
 
     private String nome;
-    private LocalDate dataNascimento;
     private String endereco;
+    private String telefone;
 
 }

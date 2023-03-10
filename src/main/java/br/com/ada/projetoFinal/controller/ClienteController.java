@@ -1,6 +1,6 @@
 package br.com.ada.projetoFinal.controller;
 
-import br.com.ada.projetoFinal.ClienteDTO;
+import br.com.ada.projetoFinal.dto.ClienteDTO;
 import br.com.ada.projetoFinal.model.Cliente;
 import br.com.ada.projetoFinal.service.ClienteService;
 import jakarta.validation.Valid;
