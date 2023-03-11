@@ -1,6 +1,5 @@
 package br.com.ada.projetoFinal.model;
 
-import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +8,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "tb_cliente")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

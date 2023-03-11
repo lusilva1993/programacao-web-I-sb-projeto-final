@@ -5,78 +5,73 @@ import br.com.ada.projetoFinal.model.Cliente;
 import br.com.ada.projetoFinal.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
-@RestController
-@RequestMapping("/cliente")
+@Controller
 public class ClienteController {
 
     @Autowired
     private ClienteService clienteService;
 
-    @PostMapping("/") //POST
-    public ResponseEntity<String> createCliente(@Valid @RequestBody ClienteDTO cliente) {
-        try {
-            Cliente clienteDB = Cliente.builder()
-                    .cpfCnpj(cliente.getCpfCnpj())
-                    .nome(cliente.getNome())
-                    .dataNascimento(cliente.getDataNascimento())
-                    .endereco(cliente.getEndereco())
-                    .build();
-            this.clienteService.createCliente(clienteDB);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body("Cliente cadastrado!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+    @PostMapping("/cliente/add")
+    public String criarCliente(@Valid @ModelAttribute("cliente") Cliente cliente,
+                               BindingResult result, Model model) {
+        if(result.hasErrors()) {
+            return addCliente(model, cliente);
         }
+        this.clienteService.createCliente(cliente);
+        return "redirect:/cliente";
+    }
+    @GetMapping("/cliente")
+    public ModelAndView cliente(
+            @RequestParam(defaultValue = "1", value = "page") Integer numPagina,
+            @RequestParam(defaultValue = "3", value = "size") Integer tamPagina) {
+        //Model, ModelMap e ModelAndView
+        ModelAndView modelAndView = new ModelAndView("clientes");
+        Page<Cliente> clientePage = this.clienteService.listarPaginado(numPagina-1, tamPagina);
+        modelAndView.addObject("clientes", clientePage.getContent());
+        modelAndView.addObject("totalPages", clientePage.getTotalPages());
+        modelAndView.addObject("currentPage", clientePage);
+        modelAndView.addObject("pageSize", clientePage.getSize());
+        return modelAndView;
     }
 
-    @GetMapping("/todos")
-    public List<Cliente> listarTodos() {
-        return this.clienteService.listarTodos();
+    @GetMapping("/cliente/add")
+    public String addCliente(Model model, Cliente cliente) {
+        model.addAttribute("add", Boolean.TRUE);
+        model.addAttribute("cliente", Objects.nonNull(cliente) ? cliente : new Cliente());
+        return "cliente-add";
     }
 
-    @GetMapping("/by/{id}")
-    public ResponseEntity<Cliente> buscarClientePorId(@PathVariable Long id) {
-        Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorId(id);
-        if (optionalCliente.isPresent()) {
-            return ResponseEntity.ok(optionalCliente.get());
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @GetMapping("/cliente/{clienteId}/delete")
+    public String deletarCliente(@PathVariable("clienteId") Long clienteId) {
+        this.clienteService.removerClientePorId(clienteId);
+        return "redirect:/clienteS";
     }
 
-    @PutMapping("/")
-    public ResponseEntity<String> atualizarCliente(@RequestBody ClienteDTO cliente) {
-        try {
-            Optional<Cliente> optionalCliente = this.clienteService.buscarClientePeloDocumento(cliente.getCpfCnpj());
-            if (optionalCliente.isPresent()) {
-                Cliente clientePorDocumentoDB = optionalCliente.get();
-                Cliente clienteAtualizar = Cliente.builder()
-                        .cpfCnpj(cliente.getCpfCnpj())
-                        .nome(cliente.getNome())
-                        .dataNascimento(cliente.getDataNascimento())
-                        .endereco(cliente.getEndereco())
-                        .build();
-                this.clienteService.createCliente(clienteAtualizar);
-
-                return ResponseEntity
-                        .ok("Cliente atualizado!");
-            }
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @GetMapping("/cliente/{clienteId}/edit")
+    public String mostrarEdicaoCliente(Model model, @PathVariable("clienteId") Long clienteId) {
+        Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorId(clienteId);
+        optionalCliente.ifPresent(cliente -> model.addAttribute("cliente", cliente));
+        model.addAttribute("add", Boolean.FALSE);
+        return "cliente-add";
     }
 
-    @DeleteMapping("/{id}")
-    public void removerCliente(@PathVariable Long id){
-        this.clienteService.removerClientePorId(id);
+    @PutMapping("/cliente/{clienteId}/edit")
+    public String editarCliente(@ModelAttribute("cliente") Cliente cliente,
+                                @PathVariable("clienteId") Long clienteId) {
+        cliente.setId(clienteId);
+        this.clienteService.createCliente(cliente);
+        return "redirect:/veiculos";
     }
+
 }

@@ -1,0 +1,1 @@
+INSERT INTO tb_cliente(cpfCnpj, nome, endereco, telefone) values ('417417061618', 'Bruce Wayne', 'Rua da desolacao, n70 - Gotham City', '707777070');
